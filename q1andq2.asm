@@ -4,7 +4,7 @@ tos label word
 stk ends
 ;
 data segment
-	array db 8,9,1,2,3,4,5,6,7,8,9,0,1,1,1,1,1,1,1,1,1
+	array db 8,9
 	len equ $ - array
 	nonumbers db "There are no numbers", 0Ah
 	threshold equ 4
@@ -45,18 +45,32 @@ ENDM
 	print cl
 	xor cl, cl
 	xor bx, bx
+	xor al, al
+	xor ch, ch
 traverse:
 	mov cl, array[bx]	;copying array element to cl
 	cmp cl, threshold	;comparing cl and threshold
 	jl printcl			;if cl<threshold then print cl
 	inc bx				;increment counter
 	cmp bx, len			;comparing counter and length
-	jnz traverse		;if not equal, then continuing the loop
+	jl traverse		;if not equal, then continuing the loop
+	jg checkIfNone
+	je checkIfNone
 printcl:
 	print cl
+	mov ch, 5
 	inc bx
 	cmp bx, len
-	jnz traverse
+	jl traverse
+	;
+checkIfNone:
+	cmp ch,5
+	jnz printNoNumber
+	jz exit
+printNoNumber:
+	mov ah, 9
+	mov dl, nonumbers
+	int 21h
 ;
 ; call exit function to DOS
 exit:
