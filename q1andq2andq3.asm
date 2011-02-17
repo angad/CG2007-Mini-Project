@@ -4,7 +4,7 @@ tos label word
 stk ends
 ;
 data segment
-	array db 13,2,3,4,5,6,7,8,9,10,11,12,14,16
+	array db 13,2,3,4,5,6,7,8,9,10
 	len equ $ - array
 	nonumbers db "There are no numbers$"
 	space db " $"
@@ -56,7 +56,7 @@ ENDM
 	je second
 	first:	print al
 	second:	print cl
-	;
+;
 ;-------------------------q2
 	mov cl, 0ah
 	print cl
@@ -90,37 +90,45 @@ second2: print cl
 	inc bx
 	cmp bx, len
 	jl traverse
-	;
+;
 checkIfNone:
 	mov ah, 6
 	cmp ch, ah
 	jnz printNoNumber
-	jz lookForEven
+	jz evenTraverse
 ;
 printNoNumber:
 	mov ah, 9
 	mov dx, offset nonumbers
 	int 21h
-	jmp lookForEven
+	jmp evenTraverse
 ;
 ;----------------------q3
-	xor cl, cl
-	xor bx, bx
-	xor dh, dh
+	xor ax, ax
+	;xor bx, bx
+	xor cx, cx
+	xor dx, dx
+	;mov bx, len
+evenTraverse:
+	sub bx, 1
 lookForEven:
-	mov cl, array[bx]
-	and cl, 1
+	xor ax, ax
+	xor cx, cx
+	mov al, array[bx]
+	mov cl, 2
+	div byte ptr cl
+	mov dl, 0
+	cmp ah, dl
 	jz evenPrint
 notEven:
-	inc bx
-	cmp bx, len
+	dec bx
+	cmp bx, 0
 	jz printEvenCount
 	jnz lookForEven
 evenPrint:
-	inc dh
-	mov cl, array[bx]
 	xor ax, ax
-	mov al, cl
+	inc dh
+	mov al, array[bx]
 	mov cl, 10
 	div byte ptr cl
 	mov cl, ah
@@ -128,10 +136,11 @@ evenPrint:
 	cmp dl, al
 	je second3
 	first3:	print al
-	second3: print cl
+	second3:
+	print cl
 	printsp
-	inc bx
-	cmp bx, len
+	dec bx
+	cmp bx, 0
 	jz printEvenCount
 	jnz lookForEven
 printEvenCount:
